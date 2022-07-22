@@ -27,7 +27,7 @@ export default function NavBar() {
                 </Grid>
 
                 <Grid container item xs={6} style={{padding: "15px"}}>
-                        <Grid container item xs={3} justifyContent="flex-start">
+                        <Grid container item xs={2} justifyContent="flex-start">
                             <Link href={'/'} passHref>
                                 <Button component="a" className={classes.menuButtons}>
                                     Park2Earn
@@ -35,23 +35,23 @@ export default function NavBar() {
                             </Link>
                         </Grid>
                         <Grid container item xs={2} justifyContent="center">
-                            <Link href={'/deposit'} passHref>
+                            <Link href={'/funding'} passHref>
                                 <Button component="a" className={classes.menuButtons}>
-                                    Deposit
+                                    Funding
                                 </Button>
                             </Link>
                         </Grid>
                         <Grid container item xs={3} justifyContent="center">
-                            <Link href={'/newproposal'} passHref>
+                            <Link href={'/newpublicgood'} passHref>
                                 <Button component="a" className={classes.menuButtons}>
-                                    New Proposal
+                                    New Public Good
                                 </Button>
                             </Link>
                         </Grid>
-                        <Grid container item xs={2} justifyContent="center">
-                            <Link href={'/proposals'} passHref>
+                        <Grid container item xs={3} justifyContent="center">
+                            <Link href={'/viewpublicgoods'} passHref>
                                 <Button component="a" className={classes.menuButtons}>
-                                    Proposals
+                                    View Public Goods
                                 </Button>
                             </Link>
                         </Grid>

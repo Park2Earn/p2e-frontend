@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 
 import { Paper, Grid, Button,TextField } from '@material-ui/core'
 // import { daoContractAddress, nftURI , REACT_APP_ALCHEMY_KEY} from '../../config'
-// import DAO from '../../contracts/DAO.json'
+import { park2EarnContractAddress, REACT_APP_ALCHEMY_KEY } from '../../config'
+import Park2Earn from '../../contracts/Park2Earn.json'
 import { ethers } from 'ethers'
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Moralis from "moralis"
@@ -11,27 +12,22 @@ import Moralis from "moralis"
 import NavBar from '../../src/navbar'
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
-// const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_KEY); 
-// export const DAOContract = new web3.eth.Contract(
-// 	DAO.abi,
-// 	daoContractAddress
-// );
+const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_KEY); 
+export const Park2EarnContract = new web3.eth.Contract(
+	Park2Earn.abi,
+	park2EarnContractAddress
+);
 
 
 export default function Home() {
     const [txError, setTxError] = useState(null)
-    const [walletError, setWalletError] = useState(null)
-    const [currentAccount, setCurrentAccount] = useState("")
-    const [requestedAccounts, setRequestedAccounts] = useState(false)
-    const [correctNetwork, setCorrectNetwork] = useState(false)
-    const [ETHPriceValue, setETHPriceValue] = useState(0)
-
-
-    const [ProposalTitle, setProposalTitle] = useState("")
-    const [ProposalDescription, setProposalDescription] = useState("")
-    
-
-    const [proposal, setProposal] = useState("")
+  const [walletError, setWalletError] = useState(null)
+  const [currentAccount, setCurrentAccount] = useState("")
+	const [requestedAccounts, setRequestedAccounts] = useState(false)
+  const [correctNetwork, setCorrectNetwork] = useState(false)
+ 
+  const [proposalCount, setProposalCount] = useState(0)
+  const [promotions, setPromotions] = useState(null)
 
 
       // Checks if wallet is connected
@@ -153,60 +149,24 @@ export default function Home() {
 		}
 	}
 
-
-
-// const getDAOMembers = async () => {
-//     if (currentAccount != "") {
-//         // console.log("getting BORROW  ----- nfts 0")
-//         const tokenIds = await DAOContract.methods.getDAOMembers().call() // returns array
-//         console.log(tokenIds)
-//     }
-// }
-
-
-const handleInputChangeProposalTitle = async (e) => {
-    e.preventDefault()
-
-    setProposalTitle(e.target.value)
-}
-
-const handleInputChangeProposalDescription = async (e) => {
-    e.preventDefault()
-
-    setProposalDescription(e.target.value)
-  }
-
   
-  const createProposal = async () => {
-    try {
-        const { ethereum } = window
+  const getProposals = async () => {
+    if (currentAccount != "") {
+			// console.log("getting BORROW  ----- nfts 0")
+            const proposalCount = await Park2EarnContract.methods.getPromotionsCount().call() // returns int
+            console.log(proposalCount)
+            setProposalCount(proposalCount)
 
-        if (ethereum) {
+            var promArray = []
+            for (var i = 0; i < proposalCount; i++) {
+                const promotion = await Park2EarnContract.methods.getPromotion(i).call() // returns int
+                promArray.push(promotion)
 
-    //         const provider = new ethers.providers.Web3Provider(ethereum)
-    //         const signer = provider.getSigner()
-
-    //         const daoContract = new ethers.Contract(
-    //             daoContractAddress,
-    //             DAO.abi,
-    //             signer
-    //         )
-
-
-    //         let nftTx = await daoContract.createProposal(ProposalDescription, ProposalChoice1, ProposalChoice2, ProposalChoice3)
-    // console.log('Minting....', nftTx.hash)
-
-    //         let tx = await nftTx.wait()
-
-        } else {
-            setWalletError('Please install MetaMask Wallet.')
-        }
-    } catch (error) {
-        // console.log('Error minting character', error)
-        setTxError(error.message)
-    }
-
+            }
+            setPromotions(promArray)
+		}
   }
+
 
     return (
         <div>
@@ -232,43 +192,39 @@ const handleInputChangeProposalDescription = async (e) => {
                 ) : correctNetwork ? (
                     <div>
                         <Grid container item xs={12} justify="center">
-                            <Grid container item xs={12} justify="center"  style={{marginTop: "50px" }}>
-                                <TextField
-                                    placeholder="Proposal Title"
-                                    multiline
-                                    rows={1}
-                                    // maxRows={4}
-                                    onChange={handleInputChangeProposalTitle}
-                                    fullWidth
-                                    inputProps={{ style: { color: 'white', fontWeight: "bold"}}}
-                                    />
-                            </Grid>
+                            <Button
+                                variant="outlined" disableElevation
+                                style={{ border: '2px solid', height: "50px", width: "100%", margin: "2px", marginTop: "60px", maxWidth: "200px" }}
+                                aria-label="View Code"
+                                onClick={getProposals}
+                                // disabled={(nftList.length >= 2 || numMinted == 50)}
+                                >
+                                Get All Public Goods
+                            </Button> 
+                        </Grid>
 
-                            <Grid container item xs={12} justify="center"  style={{marginTop: "50px" }}>
-                                <TextField
-                                    placeholder="Proposal Description"
-                                    multiline
-                                    rows={2}
-                                    maxRows={4}
-                                    onChange={handleInputChangeProposalDescription}
-                                    fullWidth
-                                    inputProps={{ style: { color: 'white', fontWeight: "bold"}}}
-                                />
-                            </Grid>
+                        <Grid container item xs={12} justify="center">
+                            <div>
+                                {proposalCount > 0 ? (
+                                    promotions.map()
+                                    // <Grid container item xs={12} justify="center">
 
-                            <Grid container item xs={12} justify="center">
-                                <Button
-                                    variant="outlined" disableElevation
-                                    style={{ border: '2px solid', height: "50px", width: "100%", margin: "2px", marginTop: "50px", maxWidth: "200px", color: "white" }}
-                                    aria-label="View Code"
-                                    onClick={createProposal}
-                                    // disabled={(nftList.length >= 2 || numMinted == 50)}
-                                    >
-                                    Create Proposal
-                                </Button>
-                            </Grid>
+                                    //     <Grid container item xs={12} justify="center">
+                                    //         {proposal.description}
+                                    //     </Grid>
+
+                                    //     <Grid container item xs={12} justify="center">
+                                    //         {proposal.description}
+                                    //     </Grid>
+
+                                    // </Grid>
+                                ) : (
+                                    <div></div>
+                                )}
+                            </div>
                         </Grid>
                     </div>
+
                 ) : (
                     <Paper elevation={0}
                     style={{width: "100%", margin: "2px", marginTop: "80px", maxWidth: "250px", textAlign: "center"}}

@@ -5,10 +5,14 @@ import { useState, useEffect } from 'react'
 
 import { Paper, Grid, Button,TextField } from '@material-ui/core'
 // import { nftContractAddress, nftURI , REACT_APP_ALCHEMY_KEY} from '../../config'
-// import NFT from '../../contracts/NFT.json'
+import { park2EarnContractAddress } from '../../config'
+import Park2Earn from '../../contracts/Park2Earn.json'
 import { ethers } from 'ethers'
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Moralis from "moralis"
+
+import styles from '../../styles/Home.module.css'
+
 
 import NavBar from '../../src/navbar'
 
@@ -25,7 +29,7 @@ export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("")
 	const [requestedAccounts, setRequestedAccounts] = useState(false)
   const [correctNetwork, setCorrectNetwork] = useState(false)
-  const [ETHPriceValue, setETHPriceValue] = useState(0)
+  const [AaveDepositAmount, setAaveDepositAmount] = useState(0)
 
       // Checks if wallet is connected
 	const checkIfWalletIsConnected = async () => {
@@ -153,22 +157,22 @@ export default function Home() {
 			const { ethereum } = window
 
 			if (ethereum) {
-				// const provider = new ethers.providers.Web3Provider(ethereum)
-				// const signer = provider.getSigner()
+				const provider = new ethers.providers.Web3Provider(ethereum)
+				const signer = provider.getSigner()
 
-				// const nftContract = new ethers.Contract(
-				// 	nftContractAddress,
-				// 	NFT.abi,
-				// 	signer
-				// )
+				const park2EarnContract = new ethers.Contract(
+					park2EarnContractAddress,
+					Park2Earn.abi,
+					signer
+				)
 
+				let p2eTx = await park2EarnContract.depositAave(
+					"0x0000000000000000000000000000000000001010", 
+					AaveDepositAmount, 
+					"0x0000000000000000000000000000000000000000")
+		        console.log('Depositing....', p2eTx.hash)
 
-				// let nftTx = await nftContract.mint(currentAccount, nftURI, ETHPriceValue)
-		        // console.log('Minting....', nftTx.hash)
-				// setMiningStatus(0)
-
-				// let tx = await nftTx.wait()
-				// setLoadingState(1)
+				let tx = await p2eTx.wait()
 
 				// setMiningStatus(1)
 			} else {
@@ -181,11 +185,42 @@ export default function Home() {
 	}
 
 
+	const withdrawFunds = async () => {
+		try {
+			const { ethereum } = window
+
+			if (ethereum) {
+				const provider = new ethers.providers.Web3Provider(ethereum)
+				const signer = provider.getSigner()
+
+				const park2EarnContract = new ethers.Contract(
+					park2EarnContractAddress,
+					Park2Earn.abi,
+					signer
+				)
+
+				let p2eTx = await park2EarnContract.withdrawAave(
+					"0x0000000000000000000000000000000000001010", 
+					AaveDepositAmount)
+		        console.log('Withdrawing....', p2eTx.hash)
+
+				let tx = await p2eTx.wait()
+
+				// setMiningStatus(1)
+			} else {
+				setWalletError('Please install MetaMask Wallet.')
+			}
+		} catch (error) {
+			// console.log('Error minting character', error)
+			setTxError(error.message)
+		}
+	}
+
   const handleInputChange = async (e) => {
     e.preventDefault()
 
     // console.log(e.target.value)
-    setETHPriceValue(e.target.value)
+    setAaveDepositAmount(e.target.value)
   }
 
 
@@ -206,12 +241,18 @@ export default function Home() {
 							aria-label="View Code"
 							disabled={(currentAccount === "" && requestedAccounts)}
 							onClick={connectWallet}
-
 						>
 							Connect Wallet
 						</Button>
 					) : correctNetwork ? (
 						<div>
+
+						<Grid container item xs={12} justifyContent="center">
+							<h1 style={{marginTop: "80px",color: "white" , width: "100%"}}>
+								Earn Interest on Aave
+							</h1>
+						</Grid>
+
 						<Grid container item xs={12} justify="center">
 						   <TextField id="outlined-basic" type="number" label="Amount" variant="outlined" style={{marginTop: "50px", background: "white" }} onChange={handleInputChange}/>
 						</Grid>
@@ -227,6 +268,20 @@ export default function Home() {
 							Deposit Funds
 						</Button>
 						</Grid>
+
+						<Grid container item xs={12} justify="center">
+						 <Button
+							variant="outlined" disableElevation
+							style={{ border: '2px solid', height: "50px", width: "100%", margin: "2px", marginTop: "40px", maxWidth: "200px", color: "white" }}
+							aria-label="View Code"
+							onClick={withdrawFunds}
+							// disabled={(nftList.length >= 2 || numMinted == 50)}
+						>
+							Withdraw Funds
+						</Button>
+						</Grid>
+
+		
 						</div>
 
 

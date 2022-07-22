@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 
 import { Paper, Grid, Button,TextField } from '@material-ui/core'
 // import { daoContractAddress, nftURI , REACT_APP_ALCHEMY_KEY} from '../../config'
-// import DAO from '../../contracts/DAO.json'
+import { park2EarnContractAddress } from '../../config'
+import Park2Earn from '../../contracts/Park2Earn.json'
 import { ethers } from 'ethers'
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Moralis from "moralis"
@@ -20,12 +21,16 @@ const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 export default function Home() {
     const [txError, setTxError] = useState(null)
-  const [walletError, setWalletError] = useState(null)
-  const [currentAccount, setCurrentAccount] = useState("")
-	const [requestedAccounts, setRequestedAccounts] = useState(false)
-  const [correctNetwork, setCorrectNetwork] = useState(false)
- 
-  const [proposal, setProposal] = useState("")
+    const [walletError, setWalletError] = useState(null)
+    const [currentAccount, setCurrentAccount] = useState("")
+    const [requestedAccounts, setRequestedAccounts] = useState(false)
+    const [correctNetwork, setCorrectNetwork] = useState(false)
+
+    const [ProposalTitle, setProposalTitle] = useState("")
+    const [ProposalDescription, setProposalDescription] = useState("")
+    
+
+    const [proposal, setProposal] = useState("")
 
 
       // Checks if wallet is connected
@@ -148,28 +153,53 @@ export default function Home() {
 	}
 
 
+const handleInputChangeProposalTitle = async (e) => {
+    e.preventDefault()
 
-
-
-const getDAOMembers = async () => {
-    if (currentAccount != "") {
-        // console.log("getting BORROW  ----- nfts 0")
-        const tokenIds = await DAOContract.methods.getDAOMembers().call() // returns array
-        console.log(tokenIds)
-    }
+    setProposalTitle(e.target.value)
 }
 
+const handleInputChangeProposalDescription = async (e) => {
+    e.preventDefault()
 
-  
-  const getProposal = async () => {
-    if (currentAccount != "") {
-			// console.log("getting BORROW  ----- nfts 0")
-            const proposal = await DAOContract.methods.getProposal(1).call() // returns array
-            console.log(proposal)
-            setProposal(proposal)
-		}
+    setProposalDescription(e.target.value)
   }
 
+  
+  const createProposal = async () => {
+    try {
+        const { ethereum } = window
+
+        if (ethereum) {
+
+            const provider = new ethers.providers.Web3Provider(ethereum)
+            const signer = provider.getSigner()
+
+            const park2EarnContract = new ethers.Contract(
+                park2EarnContractAddress,
+                Park2Earn.abi,
+                signer
+            )
+
+            let p2eTx = await park2EarnContract.createPromotion(
+                "0x0000000000000000000000000000000000001010",
+                1,
+                1,
+                ProposalTitle, 
+                ProposalDescription)
+            console.log('New public good proposal -  createPromotion....', p2eTx.hash)
+
+            let tx = await p2eTx.wait()
+
+        } else {
+            setWalletError('Please install MetaMask Wallet.')
+        }
+    } catch (error) {
+        // console.log('Error minting character', error)
+        setTxError(error.message)
+    }
+
+  }
 
     return (
         <div>
@@ -195,38 +225,43 @@ const getDAOMembers = async () => {
                 ) : correctNetwork ? (
                     <div>
                         <Grid container item xs={12} justify="center">
-                            <Button
-                                variant="outlined" disableElevation
-                                style={{ border: '2px solid', height: "50px", width: "100%", margin: "2px", marginTop: "60px", maxWidth: "200px" }}
-                                aria-label="View Code"
-                                onClick={getProposal}
-                                // disabled={(nftList.length >= 2 || numMinted == 50)}
-                                >
-                                Get Proposal
-                            </Button> 
-                        </Grid>
+                            <Grid container item xs={12} justify="center"  style={{marginTop: "50px" }}>
+                                <TextField
+                                    placeholder="Proposal Title"
+                                    multiline
+                                    rows={1}
+                                    // maxRows={4}
+                                    onChange={handleInputChangeProposalTitle}
+                                    fullWidth
+                                    inputProps={{ style: { color: 'white', fontWeight: "bold"}}}
+                                    />
+                            </Grid>
 
-                        <Grid container item xs={12} justify="center">
-                            <div>
-                                {proposal != "" ? (
-                                    <Grid container item xs={12} justify="center">
+                            <Grid container item xs={12} justify="center"  style={{marginTop: "50px" }}>
+                                <TextField
+                                    placeholder="Proposal Description"
+                                    multiline
+                                    rows={2}
+                                    maxRows={4}
+                                    onChange={handleInputChangeProposalDescription}
+                                    fullWidth
+                                    inputProps={{ style: { color: 'white', fontWeight: "bold"}}}
+                                />
+                            </Grid>
 
-                                        <Grid container item xs={12} justify="center">
-                                            {proposal.description}
-                                        </Grid>
-
-                                        <Grid container item xs={12} justify="center">
-                                            {proposal.description}
-                                        </Grid>
-
-                                    </Grid>
-                                ) : (
-                                    <div></div>
-                                )}
-                            </div>
+                            <Grid container item xs={12} justify="center">
+                                <Button
+                                    variant="outlined" disableElevation
+                                    style={{ border: '2px solid', height: "50px", width: "100%", margin: "2px", marginTop: "50px", maxWidth: "350px", color: "white" }}
+                                    aria-label="View Code"
+                                    onClick={createProposal}
+                                    // disabled={(nftList.length >= 2 || numMinted == 50)}
+                                    >
+                                    Create New Public Good Proposal
+                                </Button>
+                            </Grid>
                         </Grid>
                     </div>
-
                 ) : (
                     <Paper elevation={0}
                     style={{width: "100%", margin: "2px", marginTop: "80px", maxWidth: "250px", textAlign: "center"}}
