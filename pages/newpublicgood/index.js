@@ -166,7 +166,7 @@ const handleInputChangeProposalDescription = async (e) => {
   }
 
   
-  const createProposal = async () => {
+  const createNewPublicGood = async () => {
     try {
         const { ethereum } = window
 
@@ -181,12 +181,13 @@ const handleInputChangeProposalDescription = async (e) => {
                 signer
             )
 
-            let p2eTx = await park2EarnContract.createPromotion(
-                "0x0000000000000000000000000000000000001010",
-                1,
-                1,
+            let p2eTx = await park2EarnContract.createPrivateGood(
+                "0xfeFaefe5A845EFdc841a36312699c1Db70453BDe", // recipient wallet -> make accounts in metamask
+                0,
                 ProposalTitle, 
-                ProposalDescription)
+                ProposalDescription,
+                {  gasLimit: 500_000,}
+                )
             console.log('New public good proposal -  createPromotion....', p2eTx.hash)
 
             let tx = await p2eTx.wait()
@@ -254,10 +255,10 @@ const handleInputChangeProposalDescription = async (e) => {
                                     variant="outlined" disableElevation
                                     style={{ border: '2px solid', height: "50px", width: "100%", margin: "2px", marginTop: "50px", maxWidth: "350px", color: "white" }}
                                     aria-label="View Code"
-                                    onClick={createProposal}
+                                    onClick={createNewPublicGood}
                                     // disabled={(nftList.length >= 2 || numMinted == 50)}
                                     >
-                                    Create New Public Good Proposal
+                                    Create New Public Good
                                 </Button>
                             </Grid>
                         </Grid>

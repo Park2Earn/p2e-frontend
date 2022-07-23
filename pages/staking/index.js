@@ -29,7 +29,8 @@ export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("")
 	const [requestedAccounts, setRequestedAccounts] = useState(false)
   const [correctNetwork, setCorrectNetwork] = useState(false)
-  const [AaveDepositAmount, setAaveDepositAmount] = useState(0)
+  const [StakingDepositAmount, setStakingDepositAmount] = useState(0)
+  const [StakingWithdrawAmount, setStakingWithdrawAmount] = useState(0)
 
       // Checks if wallet is connected
 	const checkIfWalletIsConnected = async () => {
@@ -166,11 +167,12 @@ export default function Home() {
 					signer
 				)
 
-				let p2eTx = await park2EarnContract.depositAave(
-					"0x0000000000000000000000000000000000001010", 
-					AaveDepositAmount, 
-					"0x0000000000000000000000000000000000000000")
-		        console.log('Depositing....', p2eTx.hash)
+				let p2eTx = await park2EarnContract.stake(
+						"0x2058A9D7613eEE744279e3856Ef0eAda5FCbaA7e", // MATIC -> USDC
+						StakingDepositAmount,
+						1
+					  )
+		        console.log('Staking....', p2eTx.hash)
 
 				let tx = await p2eTx.wait()
 
@@ -199,9 +201,11 @@ export default function Home() {
 					signer
 				)
 
-				let p2eTx = await park2EarnContract.withdrawAave(
-					"0x0000000000000000000000000000000000001010", 
-					AaveDepositAmount)
+
+				let p2eTx = await park2EarnContract.withdrawStaked(
+						StakingWithdrawAmount,
+						1)
+
 		        console.log('Withdrawing....', p2eTx.hash)
 
 				let tx = await p2eTx.wait()
@@ -216,11 +220,18 @@ export default function Home() {
 		}
 	}
 
-  const handleInputChange = async (e) => {
+  const handleInputChangeDeposit = async (e) => {
     e.preventDefault()
 
     // console.log(e.target.value)
-    setAaveDepositAmount(e.target.value)
+    setStakingDepositAmount(e.target.value)
+  }
+
+  const handleInputChangeWithdraw = async (e) => {
+    e.preventDefault()
+
+    // console.log(e.target.value)
+    setStakingWithdrawAmount(e.target.value)
   }
 
 
@@ -254,7 +265,7 @@ export default function Home() {
 						</Grid>
 
 						<Grid container item xs={12} justify="center">
-						   <TextField id="outlined-basic" type="number" label="Amount" variant="outlined" style={{marginTop: "50px", background: "white" }} onChange={handleInputChange}/>
+						   <TextField id="outlined-basic" type="number" label="Amount" variant="outlined" style={{marginTop: "50px", background: "white" }} onChange={handleInputChangeDeposit}/>
 						</Grid>
 
 						<Grid container item xs={12} justify="center">
@@ -265,8 +276,13 @@ export default function Home() {
 							onClick={depositFunds}
 							// disabled={(nftList.length >= 2 || numMinted == 50)}
 						>
-							Deposit Funds
+							Deposit Stake
 						</Button>
+						</Grid>
+
+
+						<Grid container item xs={12} justify="center">
+						   <TextField id="outlined-basic" type="number" label="Amount" variant="outlined" style={{marginTop: "50px", background: "white" }} onChange={handleInputChangeWithdraw}/>
 						</Grid>
 
 						<Grid container item xs={12} justify="center">
@@ -277,7 +293,7 @@ export default function Home() {
 							onClick={withdrawFunds}
 							// disabled={(nftList.length >= 2 || numMinted == 50)}
 						>
-							Withdraw Funds
+							Withdraw Stake
 						</Button>
 						</Grid>
 

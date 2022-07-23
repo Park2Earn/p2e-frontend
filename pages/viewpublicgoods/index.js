@@ -153,13 +153,13 @@ export default function Home() {
   const getProposals = async () => {
     if (currentAccount != "") {
 			// console.log("getting BORROW  ----- nfts 0")
-            const proposalCount = await Park2EarnContract.methods.getPromotionsCount().call() // returns int
+            const proposalCount = await Park2EarnContract.methods.getPrivateGoodsCount().call() // returns int
             console.log(proposalCount)
             setProposalCount(proposalCount)
 
             var promArray = []
             for (var i = 0; i < proposalCount; i++) {
-                const promotion = await Park2EarnContract.methods.getPromotion(i).call() // returns int
+                const promotion = await Park2EarnContract.methods.getPrivateGood(i).call() // returns int
                 promArray.push(promotion)
 
             }

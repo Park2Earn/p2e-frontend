@@ -35,9 +35,9 @@ export default function NavBar() {
                             </Link>
                         </Grid>
                         <Grid container item xs={2} justifyContent="center">
-                            <Link href={'/funding'} passHref>
+                            <Link href={'/staking'} passHref>
                                 <Button component="a" className={classes.menuButtons}>
-                                    Funding
+                                    Staking
                                 </Button>
                             </Link>
                         </Grid>

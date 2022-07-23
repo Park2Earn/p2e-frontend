@@ -1,4 +1,4 @@
-export const park2EarnContractAddress = "xxx"
+export const park2EarnContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
 
 export const nftURI = "ipfs://QmUPFUoTfXBSEeJENeJisAGw4u3exsnsaEVE6ZyojV21GF"
