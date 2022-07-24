@@ -170,7 +170,7 @@ export default function Home() {
 
   return (
     <div>
-      <NavBar />
+      <NavBar walletAddress={currentAccount} />
 
       <Grid container item xs={12}>
         <Grid container item xs={3} justifyContent="center"></Grid>
