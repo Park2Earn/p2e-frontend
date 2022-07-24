@@ -24,10 +24,11 @@ export default function Home() {
   const [requestedAccounts, setRequestedAccounts] = useState(false);
   const [correctNetwork, setCorrectNetwork] = useState(false);
 
-  const [ProposalTitle, setProposalTitle] = useState("");
-  const [ProposalDescription, setProposalDescription] = useState("");
+  const [PublicGoodTitle, setPublicGoodTitle] = useState("");
+  const [PublicGoodDescription, setPublicGoodDescription] = useState("");
+  const [PublicGoodWallet, setPublicGoodWallet] = useState("");
 
-  const [proposal, setProposal] = useState("");
+  const [publicGood, setPublicGood] = useState("");
 
   // Checks if wallet is connected
   const checkIfWalletIsConnected = async () => {
@@ -146,16 +147,22 @@ export default function Home() {
     }
   };
 
-  const handleInputChangeProposalTitle = async (e) => {
+  const handleInputChangePublicGoodTitle = async (e) => {
     e.preventDefault();
 
-    setProposalTitle(e.target.value);
+    setPublicGoodTitle(e.target.value);
   };
 
-  const handleInputChangeProposalDescription = async (e) => {
+  const handleInputChangePublicGoodDescription = async (e) => {
     e.preventDefault();
 
-    setProposalDescription(e.target.value);
+    setPublicGoodDescription(e.target.value);
+  };
+
+  const handleInputChangePublicGoodWallet = async (e) => {
+    e.preventDefault();
+
+    setPublicGoodWallet(e.target.value);
   };
 
   const createNewPublicGood = async () => {
@@ -172,10 +179,10 @@ export default function Home() {
           signer
         );
         let p2eTx = await park2EarnContract.createPublicGood(
-          "", // recipient wallet -> make accounts in metamask
+          PublicGoodWallet, // recipient wallet -> make accounts in metamask
           1,
-          ProposalTitle,
-          ProposalDescription
+          PublicGoodTitle,
+          PublicGoodDescription
           //   { gasLimit: 500_000 }
         );
         console.log(
@@ -196,7 +203,7 @@ export default function Home() {
 
   return (
     <div>
-      <NavBar />
+      <NavBar walletAddress={currentAccount} />
 
       <Grid container item xs={12}>
         <Grid container item xs={3} justifyContent="center"></Grid>
@@ -232,11 +239,11 @@ export default function Home() {
                     style={{ marginTop: "50px" }}
                   >
                     <TextField
-                      placeholder="Proposal Title"
+                      placeholder="Title"
                       multiline
                       rows={1}
                       // maxRows={4}
-                      onChange={handleInputChangeProposalTitle}
+                      onChange={handleInputChangePublicGoodTitle}
                       fullWidth
                       inputProps={{
                         style: { color: "white", fontWeight: "bold" },
@@ -252,11 +259,31 @@ export default function Home() {
                     style={{ marginTop: "50px" }}
                   >
                     <TextField
-                      placeholder="Proposal Description"
+                      placeholder="Description"
                       multiline
                       rows={2}
                       maxRows={4}
-                      onChange={handleInputChangeProposalDescription}
+                      onChange={handleInputChangePublicGoodDescription}
+                      fullWidth
+                      inputProps={{
+                        style: { color: "white", fontWeight: "bold" },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid
+                    container
+                    item
+                    xs={12}
+                    justify="center"
+                    style={{ marginTop: "50px" }}
+                  >
+                    <TextField
+                      placeholder="Wallet address"
+                      multiline
+                      rows={2}
+                      maxRows={4}
+                      onChange={handleInputChangePublicGoodWallet}
                       fullWidth
                       inputProps={{
                         style: { color: "white", fontWeight: "bold" },
